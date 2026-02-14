@@ -41,4 +41,7 @@ git add .
 git commit -m "Update"
 git push origin main
 ```
-Pastikan GitHub Pages mengarah ke branch `main` folder `/docs`.
+### Penting: Konfigurasi GitHub Pages
+Agar website tampil online, pastikan pengaturan GitHub Pages di repository Anda diarahkan ke:
+*   Branch: `main`
+*   Folder: `/docs` (**BUKAN root `/`**)
