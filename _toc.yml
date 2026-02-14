@@ -1,11 +1,5 @@
 format: jb-book
 root: intro
 chapters:
-- file: markdown
-  title: "Markdown Files"
-- file: markdown-notebooks
-  title: "Notebooks with MyST Markdown"
-- file: notebooks
-  title: "notebooks"
-- file: md/1_test-x
-  title: "Ini File Testing"
+- file: md/1_mulai-disini
+  title: "Mulai Menulis"
