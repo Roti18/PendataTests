@@ -18,7 +18,14 @@ Setiap file baru (`.md` / `.ipynb`) **wajib** diawali judul H1 agar nama di side
 # Judul Materi
 ```
 
-## 3. UPDATE & PUBLISH
+Gunakan format nama file `0x_nama.md` agar urutan materi terstruktur (disarankan menggunakan 2 digit):
+```bash
+01_pengenalan.md
+02_dasar.md
+10_lanjutan.md
+```
+
+## 3. BUILD
 ### Windows
 ```
 publish.bat
