@@ -1,0 +1,16 @@
+# Virtual Environment
+venv/
+.venv/
+env/
+
+# Jupyter Book build folder
+_build/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# OS Files
+.DS_Store
+Thumbs.db

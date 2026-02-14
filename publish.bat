@@ -1,7 +1,7 @@
 @echo off
 setlocal
 echo ==========================================
-echo    Deploying Jupyter Book to /docs
+echo    Deploying Jupyter Book (Built-in Sys)
 echo ==========================================
 
 :: Activate venv
@@ -13,7 +13,7 @@ if exist venv\Scripts\activate (
     exit /b 1
 )
 
-:: Step 1: Build the book
+:: Step 1: Build (Sesuai cara sistem, jupyter-book ngebaca glob di _toc.yml)
 echo [1/3] Building Jupyter Book...
 jupyter-book build .
 
@@ -26,11 +26,10 @@ mkdir docs
 echo [3/3] Copying build files to /docs...
 xcopy /E /H /Y _build\html docs\
 
-:: Create .nojekyll to ensure GitHub Pages works correctly with folders starting with '_'
+:: Create .nojekyll
 echo. > docs\.nojekyll
 
 echo ==========================================
-echo    Selesai! File HTML ada di folder /docs
-echo    Siap diupload ke GitHub Pages.
+echo    Selesai! Sistem Berjalan di /docs
 echo ==========================================
 pause

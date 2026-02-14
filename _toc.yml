@@ -4,6 +4,9 @@
 format: jb-book
 root: intro
 chapters:
-- file: markdown
-- file: notebooks
-- file: markdown-notebooks
+  # Cara SYSTEM: Glob bakal nyari file otomatis.
+  # Judul di sidebar diambil langsung dari <h1> (#) pertama di tiap file.
+  - glob: "*"
+  - glob: md/*
+    # Jika ingin sistem ngasih nomor 1, 2, 3 otomatis di sidebar:
+    # numbered: true

@@ -42,6 +42,9 @@ echo "[6/6] Cleaning up Pendat folder..."
 # Remove Pendat folder as requested
 rm -rf Pendat
 
+# Create .nojekyll in root
+touch .nojekyll
+
 echo "=========================================="
 echo "   Process Finished!"
 echo "   Venv: Active (use 'source venv/bin/activate' next time)"

@@ -40,9 +40,27 @@ echo [6/6] Cleaning up Pendat folder...
 :: Remove Pendat folder as requested
 rmdir /S /Q Pendat
 
+:: Create .nojekyll in root
+echo. > .nojekyll
+
+echo [7/7] Auto-Generating Table of Contents (_toc.yml)...
+powershell -Command ^
+    "$ignore = @('intro.md', 'README.md', 'requirements.txt', 'requirements-install.txt', '.nojekyll'); ^
+    $files = Get-ChildItem -Path . -Include *.md, *.ipynb -Recurse | Where-Object { $_.Name -notin $ignore -and $_.FullName -notmatch 'venv|_build|docs' }; ^
+    $nonNumbered = $files | Where-Object { $_.Name -notmatch '^\d+' } | Sort-Object Name; ^
+    $numbered = $files | Where-Object { $_.Name -match '^\d+' } | Sort-Object { [int]($_.Name -replace '^(\d+).*', '$1') }; ^
+    $finalList = $nonNumbered + $numbered; ^
+    $toc = 'format: jb-book' + \"`n\" + 'root: intro' + \"`n\" + 'chapters:'; ^
+    foreach ($f in $finalList) { ^
+        $relPath = (Resolve-Path -Path $f.FullName -Relative) -replace '^\.\\', '' -replace '\.(md|ipynb)$', '' -replace '\\', '/'; ^
+        $toc += \"`n\" + '- file: ' + $relPath; ^
+    }; ^
+    $toc | Out-File -FilePath _toc.yml -Encoding ASCII"
+
 echo ==========================================
 echo    Process Finished! 
 echo    Venv: Active (use 'call venv\Scripts\activate' next time)
 echo    Build: results in '_build' folder
+echo    Sidebar: Auto-generated (_toc.yml)
 echo ==========================================
 pause

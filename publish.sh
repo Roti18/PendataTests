@@ -12,8 +12,12 @@ else
     exit 1
 fi
 
-# Step 1: Build the book
-echo "[1/3] Building Jupyter Book..."
+# Step 1: Update Table of Contents
+echo "[1/4] Updating _toc.yml..."
+python3 update_toc.py
+
+# Step 2: Build the book
+echo "[2/4] Building Jupyter Book..."
 jupyter-book build .
 
 # Step 2: Prepare docs folder
