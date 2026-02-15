@@ -10,8 +10,14 @@ log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
 app = Flask(__name__)
-MODE = os.environ.get("MODE", "PRODUCTION")
+# Deteksi VENV: Jika folder venv tidak ada, maka dianggap mode PRODUKSI (Web/GitHub)
+VENV_EXISTS = os.path.exists(os.path.join(os.getcwd(), 'venv'))
+MODE = os.environ.get("MODE", "DEVELOPMENT" if VENV_EXISTS else "PRODUCTION")
 BUILD_DIR = os.path.join(os.getcwd(), '_build', 'html')
+
+def is_local_access():
+    """Cek apakah akses berasal dari localhost atau 127.0.0.1"""
+    return request.remote_addr in ['127.0.0.1', 'localhost', '::1']
 
 def get_editable_files():
     """Get list of files that can be edited/deleted"""
@@ -77,14 +83,14 @@ def build_book():
         # Gunakan --all agar sidebar di SEMUA halaman terupdate saat TOC berubah
         subprocess.run(["jupyter-book", "build", "--all", "."], check=True)
         
-        # Post-processing: Ganti em-dash (&#8212;) dengan | di semua file HTML
+        # Post-processing: Ganti em-dash/dash dengan pipe di dalam tag <title>
         html_files = glob.glob(os.path.join(BUILD_DIR, "**", "*.html"), recursive=True)
         for html_file in html_files:
             try:
                 with open(html_file, 'r', encoding='utf-8') as f:
                     content = f.read()
                 # Ganti em-dash/dash dengan pipe di dalam tag <title>
-                new_content = re.sub(r'<title>(.*) (&#8212;|&mdash;|—|-) (.*)</title>', r'<title>\1 | \3</title>', content)
+                new_content = re.sub(r'<title>(.*) (&#8212;|&mdash;|—|--|-) (.*)</title>', r'<title>\1 | \3</title>', content)
                 if new_content != content:
                     with open(html_file, 'w', encoding='utf-8') as f:
                         f.write(new_content)
@@ -98,15 +104,18 @@ def build_book():
 
 @app.route('/canvas')
 def canvas():
-    if MODE != "DEVELOPMENT": return "Disabled", 403
+    if not VENV_EXISTS or not is_local_access():
+        return render_template_string(RESTRICTED_HTML), 403
     return render_template_string(CANVAS_HTML)
 
 @app.route('/api/files')
 def list_files():
+    if not VENV_EXISTS or not is_local_access(): return jsonify([]), 403
     return jsonify(get_editable_files())
 
 @app.route('/api/read')
 def read_file():
+    if not VENV_EXISTS or not is_local_access(): return jsonify(success=False), 403
     path = request.args.get('path')
     if not path or not os.path.exists(path):
         return jsonify(success=False, error="File not found")
@@ -115,6 +124,7 @@ def read_file():
 
 @app.route('/api/delete', methods=['POST'])
 def delete_file():
+    if not VENV_EXISTS or not is_local_access(): return jsonify(success=False), 403
     path = request.json.get('path')
     if not path or not os.path.exists(path):
         return jsonify(success=False, error="File not found")
@@ -138,6 +148,7 @@ def delete_file():
 
 @app.route('/save', methods=['POST'])
 def save():
+    if not VENV_EXISTS or not is_local_access(): return jsonify(success=False), 403
     data = request.json
     filename = data.get('filename')
     content = data.get('content')
@@ -194,6 +205,31 @@ def serve_static(path):
     return "File Not Found", 404
 
 # --- UI TEMPLATE ---
+
+RESTRICTED_HTML = r"""
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Access Denied</title>
+    <style>
+        body { background: #0d1117; color: #c9d1d9; display: flex; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; text-align: center; }
+        .box { padding: 40px; border: 1px solid #30363d; border-radius: 12px; background: #161b22; max-width: 400px; }
+        h1 { color: #f85149; }
+        p { line-height: 1.6; }
+        .footer { margin-top: 20px; font-size: 12px; color: #8b949e; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1>Akses Dibatasi</h1>
+        <p>Markdown Canvas hanya bisa diakses via <b>Localhost</b> dengan environment <b>VENV</b> aktif.</p>
+        <p>Fitur editor dimatikan untuk versi web publik demi keamanan data.</p>
+        <div class="footer">Silakan jalankan <code>bash run.sh dev</code> di komputer lokal Anda.</div>
+    </div>
+</body>
+</html>
+"""
+
 CANVAS_HTML = r"""
 <!DOCTYPE html>
 <html>
@@ -334,6 +370,7 @@ CANVAS_HTML = r"""
 
         async function loadFiles() {
             const res = await fetch('/api/files');
+            if(!res.ok) return;
             const files = await res.json();
             fileList.innerHTML = files.map(f => {
                 // Bersihkan nama untuk tampilan: hapus path, hapus angka di depan, hapus ekstensi
@@ -413,7 +450,7 @@ CANVAS_HTML = r"""
                 case 'h1': before = "# "; placeholder = "Title"; break;
                 case 'h2': before = "## "; placeholder = "Subtitle"; break;
                 case 'list': before = "- "; break;
-                case 'code': before = "```\\n"; after = "\\n```"; break;
+                case 'code': before = "```\n"; after = "\n```"; break;
                 case 'image': before = "!["; after = "](https://)"; placeholder = "alt"; break;
             }
 
@@ -468,6 +505,7 @@ if __name__ == '__main__':
         print("\nDEV SERVER ACTIVE!")
         print("Book Link: http://127.0.0.1:5000")
         print("Canvas Link: http://127.0.0.1:5000/canvas\n")
-        app.run(port=5000, debug=False)
+        app.run(host='0.0.0.0', port=5000, debug=False)
     else:
         print("Production Mode Active.")
+        app.run(host='0.0.0.0', port=5000, debug=False)
