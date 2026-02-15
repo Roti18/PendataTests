@@ -1,0 +1,44 @@
+@echo off
+setlocal
+set CMD=%1
+
+if "%CMD%"=="" goto usage
+
+if "%CMD%"=="install" (
+    call scripts\install.bat
+    goto :eof
+)
+if "%CMD%"=="dev" (
+    call scripts\dev.bat
+    goto :eof
+)
+if "%CMD%"=="publish" (
+    call scripts\publish.bat
+    goto :eof
+)
+if "%CMD%"=="reset" (
+    echo Resetting project...
+    if exist __pycache__ rmdir /S /Q __pycache__
+    if exist _build rmdir /S /Q _build
+    if exist docs rmdir /S /Q docs
+    if exist .env del .env
+    if exist venv rmdir /S /Q venv
+    if exist Pendat rmdir /S /Q Pendat
+    echo Done.
+    goto :eof
+)
+
+:usage
+echo ==========================================
+echo          Jupyter-OPZ Master Tool
+echo ==========================================
+echo Usage: run.bat [command]
+echo.
+echo Commands:
+echo   install   : Setup environment and build book
+echo   dev       : Start dev server ^& Markdown Canvas
+echo   publish   : Update TOC and build to /docs
+echo   reset     : Full cleanup (removes venv, build, etc)
+echo ==========================================
+pause
+goto :eof
