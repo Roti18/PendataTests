@@ -7,15 +7,15 @@ echo ==========================================
 set /p AUTHOR_NAME="Enter Author Name (Default: Roti18): "
 if "%AUTHOR_NAME%"=="" set AUTHOR_NAME=Roti18
 
-set /p GITHUB_USER="Enter GitHub Username (Default: Roti18): "
-if "%GITHUB_USER%"=="" set GITHUB_USER=Roti18
+set /p REPO_URL="Enter GitHub Repository URL (e.g. https://github.com/roti18/jupyter-opz): "
+if "%REPO_URL%"=="" (
+    for %%I in (.) do set REPO_NAME=%%~nxI
+    set REPO_URL=https://github.com/Roti18/%REPO_NAME%
+)
 
 :: Get Current Year
 for /f "tokens=2 delims==" %%i in ('wmic os get localdatetime /value') do set dt=%%i
 set CURRENT_YEAR=%dt:~0,4%
-:: Get Repo Name (Folder Name)
-for %%I in (.) do set REPO_NAME=%%~nxI
-set REPO_URL=https://github.com/%GITHUB_USER%/%REPO_NAME%
 
 :: Update _config.yml
 if exist _config.yml (

@@ -8,12 +8,14 @@ echo "=========================================="
 read -p "Enter Author Name (Default: Roti18): " AUTHOR_NAME
 if [ -z "$AUTHOR_NAME" ]; then AUTHOR_NAME="Roti18"; fi
 
-read -p "Enter GitHub Username (Default: Roti18): " GITHUB_USER
-if [ -z "$GITHUB_USER" ]; then GITHUB_USER="Roti18"; fi
+read -p "Enter GitHub Repository URL (e.g. https://github.com/roti18/jupyter-opz): " REPO_URL
+if [ -z "$REPO_URL" ]; then 
+    GITHUB_USER="Roti18"
+    REPO_NAME=$(basename "$(pwd)")
+    REPO_URL="https://github.com/$GITHUB_USER/$REPO_NAME"
+fi
 
 CURRENT_YEAR=$(date +%Y)
-REPO_NAME=$(basename "$(pwd)")
-REPO_URL="https://github.com/$GITHUB_USER/$REPO_NAME"
 
 # Update _config.yml
 if [ -f "_config.yml" ]; then
