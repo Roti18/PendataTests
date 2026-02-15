@@ -1,6 +1,6 @@
-# Jupyter-OPZ
+# Jupyter Optimization
 
-A streamlined Jupyter Book (v1.0.3) environment with an integrated Markdown Canvas editor for rapid content creation.
+Streamlined Jupyter Book (v1.0.3) environment with an integrated Markdown Canvas editor for rapid content creation.
 
 ## Quick Start (Master Script)
 
@@ -45,6 +45,7 @@ bash run.sh reset
 ## Writing Content
 
 - File Naming: Use 0x_name.md format (e.g., 01_introduction.md).
+- **Auto-Numbering Queue**: In Canvas Mode, you can just type the name (e.g., `my-topic`) and the system will automatically prefix it with the next available number (e.g., `03_my-topic.md`).
 - H1 Titles: Every file must start with an H1 title (# Title).
 - Location: Put source files in the md/ directory.
 
