@@ -33,18 +33,19 @@ jupyter-book build Pendat/
 echo [5/6] Moving contents to Root...
 xcopy /E /H /Y Pendat .
 
-echo [6/6] Cleaning up Pendat folder...
-rmdir /S /Q Pendat
-
-:: Create .nojekyll in root
+echo [6/7] Cleaning up sample files...
+if exist Pendat rmdir /S /Q Pendat
+if exist .nojekyll del .nojekyll
 echo. > .nojekyll
-
-echo [8/8] Cleaning up sample files...
 del /F /Q markdown.md markdown-notebooks.md notebooks.ipynb 2>nul
+if exist _build\html\markdown.html del /F /Q _build\html\markdown.html
+if exist _build\html\markdown-notebooks.html del /F /Q _build\html\markdown-notebooks.html
+if exist _build\html\notebooks.html del /F /Q _build\html\notebooks.html
+if exist docs\markdown.html del /F /Q docs\markdown.html
+if exist docs\markdown-notebooks.html del /F /Q docs\markdown-notebooks.html
+if exist docs\notebooks.html del /F /Q docs\notebooks.html
 
-echo [7/7] Finishing Installation...
-
-:: Project Identity Setup
+echo [7/7] Project Identity Setup...
 echo ------------------------------------------
 set /p AUTHOR_NAME="Enter Author Name (Default: Roti18): "
 if "%AUTHOR_NAME%"=="" set AUTHOR_NAME=Roti18

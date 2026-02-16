@@ -26,9 +26,11 @@ if "%CMD%"=="reset" (
     if exist _build rmdir /S /Q _build
     if exist docs rmdir /S /Q docs
     if exist .env del .env
+    if exist scripts\dev.log del scripts\dev.log
+    if exist scripts\dev_server.log del scripts\dev_server.log
     if exist venv rmdir /S /Q venv
     if exist Pendat rmdir /S /Q Pendat
-    echo Done.
+    echo Done. All build artifacts and virtual environment removed.
     goto :eof
 )
 
