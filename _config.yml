@@ -39,3 +39,7 @@ exclude_patterns: ["_build", "docs", "venv", "scripts", "run.bat", "run.sh", "RE
 
 # Pattern to exclude from the build
 exclude_patterns: ["_build", "docs", "venv", "scripts", "run.bat", "run.sh", "README.md"]
+
+
+# Pattern to exclude from the build
+exclude_patterns: ["_build", "docs", "venv", "scripts", "run.bat", "run.sh", "README.md"]

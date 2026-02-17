@@ -43,7 +43,7 @@ fi
 touch .nojekyll
 
 echo "[6/7] Cleaning up sample files..."
-rm -f intro.md markdown.md markdown-notebooks.md notebooks.ipynb
+rm -f markdown.md markdown-notebooks.md notebooks.ipynb
 rm -f _build/html/markdown.html _build/html/markdown-notebooks.html _build/html/notebooks.html
 rm -f docs/markdown.html docs/markdown-notebooks.html docs/notebooks.html
 

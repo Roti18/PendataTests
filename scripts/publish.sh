@@ -31,6 +31,8 @@ get_title() {
     echo "$title"
 }
 
+CHAPTERS_BLOCK=""
+
 # Numbered files first
 for f in $(find . -maxdepth 2 -name "*.md" -o -name "*.ipynb" | grep -vE "venv|_build|docs|scripts" | sort); do
     fname=$(basename "$f")
@@ -38,8 +40,7 @@ for f in $(find . -maxdepth 2 -name "*.md" -o -name "*.ipynb" | grep -vE "venv|_
         rel_path=$(echo "$f" | sed 's|^\./||; s|\.\(md\|ipynb\)$||')
         if [[ "$rel_path" == "md/intro" || "$rel_path" == "intro" ]]; then continue; fi
         title=$(get_title "$f")
-        echo "- file: $rel_path" >> _toc.yml
-        echo "  title: \"$title\"" >> _toc.yml
+        CHAPTERS_BLOCK="${CHAPTERS_BLOCK}\n- file: $rel_path\n  title: \"$title\""
     fi
 done
 
@@ -50,10 +51,14 @@ for f in $(find . -maxdepth 2 -name "*.md" -o -name "*.ipynb" | grep -vE "venv|_
         rel_path=$(echo "$f" | sed 's|^\./||; s|\.\(md\|ipynb\)$||')
         if [[ "$rel_path" == "md/intro" || "$rel_path" == "intro" ]]; then continue; fi
         title=$(get_title "$f")
-        echo "- file: $rel_path" >> _toc.yml
-        echo "  title: \"$title\"" >> _toc.yml
+        CHAPTERS_BLOCK="${CHAPTERS_BLOCK}\n- file: $rel_path\n  title: \"$title\""
     fi
 done
+
+if [ ! -z "$CHAPTERS_BLOCK" ]; then
+    echo "chapters:" >> _toc.yml
+    echo -e "$CHAPTERS_BLOCK" >> _toc.yml
+fi
 
 echo "[2/4] Building Jupyter Book..."
 jupyter-book build --all .

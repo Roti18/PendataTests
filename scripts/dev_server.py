@@ -373,27 +373,32 @@ def update_toc():
     
     non_numbered.sort()
     numbered.sort(key=lambda x: int(re.match(r'^(\d+)', os.path.basename(x)).group(1)) if re.match(r'^(\d+)', os.path.basename(x)) else 0)
-    final_list = numbered + non_numbered
     
-    toc_content = "format: jb-book\nroot: intro\nchapters:\n"
-    for f in final_list:
-        # Skip root file from chapters list
-        if f.replace('\\', '/') == 'md/intro.md' or f.replace('\\', '/') == 'intro.md':
+    # Filter out intro.md (root) from chapters
+    final_list = []
+    for f in (numbered + non_numbered):
+        rel_path = f.replace('\\', '/')
+        if rel_path == 'md/intro.md' or rel_path == 'intro.md' or rel_path.endswith('/intro.md'):
             continue
+        final_list.append(f)
+    
+    toc_content = "format: jb-book\nroot: intro\n"
+    if final_list:
+        toc_content += "chapters:\n"
+        for f in final_list:
+            real_path = os.path.join(ROOT_DIR, f)
+            title = os.path.splitext(os.path.basename(f))[0].replace('-', ' ').replace('_', ' ').title()
+            try:
+                with open(real_path, 'r', encoding='utf-8') as file:
+                    for _ in range(10):
+                        line = file.readline()
+                        if line.startswith('# '):
+                            title = line.replace('# ', '').strip()
+                            break
+            except: pass
             
-        real_path = os.path.join(ROOT_DIR, f)
-        title = os.path.splitext(os.path.basename(f))[0].replace('-', ' ').replace('_', ' ').title()
-        try:
-            with open(real_path, 'r', encoding='utf-8') as file:
-                for _ in range(10):
-                    line = file.readline()
-                    if line.startswith('# '):
-                        title = line.replace('# ', '').strip()
-                        break
-        except: pass
-        
-        jb_path = os.path.splitext(f.replace('\\', '/'))[0]
-        toc_content += f"- file: {jb_path}\n  title: \"{title}\"\n"
+            jb_path = os.path.splitext(f.replace('\\', '/'))[0]
+            toc_content += f"- file: {jb_path}\n  title: \"{title}\"\n"
     
     with open(os.path.join(ROOT_DIR, '_toc.yml'), 'w', encoding='utf-8') as f:
         f.write(toc_content)
