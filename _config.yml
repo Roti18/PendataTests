@@ -31,3 +31,7 @@ repository:
 html:
   use_issues_button: true
   use_repository_button: true
+
+
+# Pattern to exclude from the build
+exclude_patterns: ["_build", "docs", "venv", "scripts", "run.bat", "run.sh", "README.md"]

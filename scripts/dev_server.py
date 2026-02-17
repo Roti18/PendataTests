@@ -452,6 +452,14 @@ def delete_file():
         return jsonify(success=True)
     except Exception as e: return jsonify(success=False, error=str(e))
 
+@app.route('/api/rebuild', methods=['POST'])
+def rebuild():
+    if not VENV_EXISTS or not is_local_access(): return jsonify(success=False), 403
+    update_toc()
+    if build_book():
+        return jsonify(success=True)
+    return jsonify(success=False, error="Build failed")
+
 @app.route('/save', methods=['POST'])
 def save():
     if not VENV_EXISTS or not is_local_access(): return jsonify(success=False), 403
@@ -491,11 +499,63 @@ def save():
 @app.route('/')
 def home():
     idx = os.path.join(BUILD_DIR, 'index.html')
-    if not os.path.exists(idx):
-        if VENV_EXISTS and is_local_access():
-            return redirect(url_for('canvas'))
-        return render_template_string(RESTRICTED_HTML), 403
-    return send_from_directory(BUILD_DIR, 'index.html')
+    if os.path.exists(idx):
+        return send_from_directory(BUILD_DIR, 'index.html')
+        
+    # If build is missing, show a helper page instead of a forced redirect
+    if VENV_EXISTS and is_local_access():
+        return render_template_string("""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Jupyter Optimization - Setup</title>
+            <style>
+                body { background: #0d1117; color: #c9d1d9; display: flex; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; text-align: center; margin: 0; }
+                .box { padding: 40px; border: 1px solid #30363d; border-radius: 12px; background: #161b22; max-width: 500px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+                h1 { color: #58a6ff; margin-top: 0; }
+                p { line-height: 1.6; font-size: 1.1rem; color: #8b949e; }
+                .btns { margin-top: 30px; display: flex; gap: 15px; justify-content: center; }
+                .btn { padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; transition: 0.2s; cursor: pointer; border: none; }
+                .btn-primary { background: #238636; color: #fff; }
+                .btn-primary:hover { background: #2ea043; }
+                .btn-outline { background: transparent; border: 1px solid #30363d; color: #c9d1d9; }
+                .btn-outline:hover { background: #21262d; border-color: #8b949e; }
+            </style>
+        </head>
+        <body>
+            <div class="box">
+                <h1>Hampir Siap!</h1>
+                <p>Buku lo belum di-build nih bos. Pilih salah satu:</p>
+                <div class="btns">
+                    <a href="/canvas" class="btn btn-primary">Buka Canvas Editor</a>
+                    <button onclick="buildNow()" id="build-btn" class="btn btn-outline">Build Sekarang</button>
+                </div>
+                <p id="status" style="margin-top:20px; font-size:0.9rem; display:none;">Sedang membangun... sabar ya.</p>
+            </div>
+            <script>
+                async function buildNow() {
+                    const btn = document.getElementById('build-btn');
+                    const status = document.getElementById('status');
+                    btn.disabled = true;
+                    status.style.display = 'block';
+                    try {
+                        const res = await fetch('/api/rebuild', { method: 'POST' });
+                        const data = await res.json();
+                        if(data.success) {
+                            window.location.reload();
+                        } else {
+                            alert("Gagal build: " + data.error);
+                        }
+                    } finally {
+                        btn.disabled = false;
+                        status.style.display = 'none';
+                    }
+                }
+            </script>
+        </body>
+        </html>
+        """)
+    return render_template_string(RESTRICTED_HTML), 403
 
 @app.route('/canvas.html')
 def canvas_html():
