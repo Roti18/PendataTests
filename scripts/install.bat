@@ -22,22 +22,28 @@ echo [3/6] Installing Requirements...
 python -m pip install --upgrade pip
 pip install -r scripts\requirements.txt
 
-echo [4/6] Initializing Project...
 if not exist Pendat (
-    jupyter-book create Pendat
+    if not exist _config.yml (
+        jupyter-book create Pendat
+    )
 )
 
 echo Building Jupyter Book...
 jupyter-book build Pendat/
 
 echo [5/6] Moving contents to Root...
-xcopy /E /H /Y Pendat .
+if exist Pendat (
+    xcopy /E /H /Y Pendat .
+)
 
 echo [6/7] Cleaning up sample files...
 if exist Pendat rmdir /S /Q Pendat
 if exist .nojekyll del .nojekyll
 echo. > .nojekyll
-del /F /Q intro.md markdown.md markdown-notebooks.md notebooks.ipynb 2>nul
+:: Only delete defaults if there is a Pendat folder (fresh install)
+if exist Pendat (
+    del /F /Q markdown.md markdown-notebooks.md notebooks.ipynb 2>nul
+)
 if exist _build\html\markdown.html del /F /Q _build\html\markdown.html
 if exist _build\html\markdown-notebooks.html del /F /Q _build\html\markdown-notebooks.html
 if exist _build\html\notebooks.html del /F /Q _build\html\notebooks.html
@@ -60,9 +66,8 @@ if "!REPO_URL!"=="" (
 for /f "tokens=2 delims==" %%i in ('wmic os get localdatetime /value') do set dt=%%i
 set CURRENT_YEAR=%dt:~0,4%
 
-:: Update _config.yml
 if exist _config.yml (
-    powershell -Command "$c = Get-Content _config.yml; $c = $c -replace '^author: .*', 'author: \"%AUTHOR_NAME%\"'; $c = $c -replace '^  url: .*', '  url: !REPO_URL!'; $c = $c -replace '^  branch: .*', '  branch: main'; if ($c -match '^copyright:') { $c = $c -replace '^copyright: .*', 'copyright: \"%CURRENT_YEAR%\"' } else { $c = $c -replace '^author: .*', \"author: `\"%AUTHOR_NAME%`\"`ncopyright: `\"%CURRENT_YEAR%`\"\" }; Set-Content _config.yml $c"
+    powershell -Command "$c = Get-Content _config.yml; $c = $c -replace '^author: .*', 'author: \"%AUTHOR_NAME%\"'; $c = $c -replace '^  url: .*', '  url: !REPO_URL!'; $c = $c -replace '^  branch: .*', '  branch: main'; if ($c -match '^copyright:') { $c = $c -replace '^copyright: .*', 'copyright: \"%CURRENT_YEAR%\"' } else { $c = $c -replace '^author: .*', \"author: `\"%AUTHOR_NAME%`\"`ncopyright: `\"%CURRENT_YEAR%`\"\" }; if ($c -notmatch 'exclude_patterns:') { $c += \"`n`n# Pattern to exclude from the build`nexclude_patterns: [`\"_build`\", `\"docs`\", `\"venv`\", `\"scripts`\", `\"run.bat`\", `\"run.sh`\", `\"README.md`\"]\" }; Set-Content _config.yml $c"
 )
 echo [SUCCESS] Identity updated: %AUTHOR_NAME% ^| %CURRENT_YEAR%
 echo [SUCCESS] Repository set to: !REPO_URL!

@@ -24,17 +24,20 @@ pip install -r scripts/requirements.txt
 echo "[4/6] Initializing Project..."
 # Only create temporary folder if it doesn't exist
 if [ ! -d "Pendat" ]; then
-    jupyter-book create Pendat
+    if [ ! -f "_config.yml" ]; then
+        jupyter-book create Pendat
+    fi
 fi
 
 # Build the book
 echo "Building Jupyter Book..."
 jupyter-book build Pendat/
 
-echo "[5/6] Moving contents to Root..."
-cp -rn Pendat/* ./ 2>/dev/null
-cp -rn Pendat/.* ./ 2>/dev/null
-rm -rf Pendat
+if [ -d "Pendat" ]; then
+    cp -rn Pendat/* ./ 2>/dev/null
+    cp -rn Pendat/.* ./ 2>/dev/null
+    rm -rf Pendat
+fi
 
 # Create .nojekyll in root
 touch .nojekyll
@@ -58,7 +61,6 @@ fi
 
 CURRENT_YEAR=$(date +%Y)
 
-# Update _config.yml
 if [ -f "_config.yml" ]; then
     sed -i "s/^author: .*/author: \"$AUTHOR_NAME\"/" _config.yml
     sed -i "s|^  url: .*|  url: $REPO_URL|" _config.yml
@@ -68,6 +70,10 @@ if [ -f "_config.yml" ]; then
         sed -i "s/^copyright: .*/copyright: \"$CURRENT_YEAR\"/" _config.yml
     else
         sed -i "/^author:/a copyright: \"$CURRENT_YEAR\"" _config.yml
+    fi
+    # Add exclude_patterns if missing
+    if ! grep -q "exclude_patterns:" _config.yml; then
+        echo -e "\n# Pattern to exclude from the build\nexclude_patterns: [\"_build\", \"docs\", \"venv\", \"scripts\", \"run.bat\", \"run.sh\", \"README.md\"]" >> _config.yml
     fi
 fi
 
