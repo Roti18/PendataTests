@@ -331,7 +331,7 @@ CANVAS_HTML = r"""
 # --- LOGIC HELPERS ---
 
 def get_editable_files():
-    ignore = ['intro.md', 'README.md', 'requirements.txt', '.nojekyll', 'markdown.md', 'markdown-notebooks.md', 'notebooks.ipynb', '_toc.yml', '_config.yml']
+    ignore = ['README.md', 'requirements.txt', '.nojekyll', 'markdown.md', 'markdown-notebooks.md', 'notebooks.ipynb', '_toc.yml', '_config.yml']
     files = []
     # Root
     for f in glob.glob("*.md") + glob.glob("*.ipynb"):
@@ -347,7 +347,7 @@ def get_editable_files():
     return sorted(files)
 
 def update_toc():
-    ignore = ['intro.md', 'README.md', 'requirements.txt', '.nojekyll', 'markdown.md', 'markdown-notebooks.md', 'notebooks.ipynb']
+    ignore = ['README.md', 'requirements.txt', '.nojekyll', 'markdown.md', 'markdown-notebooks.md', 'notebooks.ipynb']
     files = []
     # Root
     for f in glob.glob("*.md") + glob.glob("*.ipynb"):
@@ -371,8 +371,12 @@ def update_toc():
     numbered.sort(key=lambda x: int(re.match(r'^(\d+)', os.path.basename(x)).group(1)) if re.match(r'^(\d+)', os.path.basename(x)) else 0)
     final_list = numbered + non_numbered
     
-    toc_content = "format: jb-book\nroot: intro\nchapters:\n"
+    toc_content = "format: jb-book\nroot: md/intro\nchapters:\n"
     for f in final_list:
+        # Skip root file from chapters list
+        if f.replace('\\', '/') == 'md/intro.md' or f.replace('\\', '/') == 'intro.md':
+            continue
+            
         real_path = os.path.join(ROOT_DIR, f)
         title = os.path.splitext(os.path.basename(f))[0].replace('-', ' ').replace('_', ' ').title()
         try:
@@ -455,7 +459,7 @@ def save():
             if match:
                 num = int(match.group(1)); max_num = max(max_num, num)
         
-        if not re.match(r'^\d+', filename):
+        if not re.match(r'^\d+', filename) and filename.lower() != 'intro':
             filename = f"{(max_num + 1):02d}_" + filename.replace(' ', '-')
         
         if not filename.endswith('.md'): filename += '.md'

@@ -13,10 +13,10 @@ else
 fi
 
 echo "[1/4] Auto-Generating Table of Contents (_toc.yml)..."
-IGNORE="intro.md README.md requirements.txt .nojekyll markdown.md markdown-notebooks.md notebooks.ipynb"
+IGNORE="README.md requirements.txt .nojekyll markdown.md markdown-notebooks.md notebooks.ipynb"
 
 echo "format: jb-book" > _toc.yml
-echo "root: intro" >> _toc.yml
+echo "root: md/intro" >> _toc.yml
 echo "chapters:" >> _toc.yml
 
 # Function to get title from H1 or filename
@@ -34,6 +34,7 @@ for f in $(find . -maxdepth 2 -name "*.md" -o -name "*.ipynb" | grep -vE "venv|_
     fname=$(basename "$f")
     if [[ ! " $IGNORE " =~ " $fname " ]] && [[ "$fname" =~ ^[0-9] ]]; then
         rel_path=$(echo "$f" | sed 's|^\./||; s|\.\(md\|ipynb\)$||')
+        if [[ "$rel_path" == "md/intro" || "$rel_path" == "intro" ]]; then continue; fi
         title=$(get_title "$f")
         echo "- file: $rel_path" >> _toc.yml
         echo "  title: \"$title\"" >> _toc.yml
@@ -45,6 +46,7 @@ for f in $(find . -maxdepth 2 -name "*.md" -o -name "*.ipynb" | grep -vE "venv|_
     fname=$(basename "$f")
     if [[ ! " $IGNORE " =~ " $fname " ]] && [[ ! "$fname" =~ ^[0-9] ]]; then
         rel_path=$(echo "$f" | sed 's|^\./||; s|\.\(md\|ipynb\)$||')
+        if [[ "$rel_path" == "md/intro" || "$rel_path" == "intro" ]]; then continue; fi
         title=$(get_title "$f")
         echo "- file: $rel_path" >> _toc.yml
         echo "  title: \"$title\"" >> _toc.yml
