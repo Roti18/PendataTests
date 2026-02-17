@@ -1,10 +1,13 @@
 # Book settings
 # Learn more at https://jupyterbook.org/customize/config.html
 
-title: My sample book
+title: Penambangan Data
 author: "Roti18"
 copyright: "2026"
 logo: logo.png
+
+# Pattern to exclude from the build
+exclude_patterns: ["_build", "docs", "venv", ".git", ".ipynb_checkpoints", "scripts", "run.bat", "run.sh", "README.md"]
 
 # Force re-execution of notebooks on each build.
 # See https://jupyterbook.org/content/execute.html
